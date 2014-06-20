@@ -4,7 +4,7 @@ namespace BatchManager\Event;
 use Zend\EventManager\Event;
 use BatchManager\Entity\BatchInterface;
 use BatchManager\Entity\Batch;
-use AssetManager\Exception\InvalidArgumentException;
+use InvalidArgumentException;
 
 class BatchEvent extends Event
 {

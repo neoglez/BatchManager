@@ -1,0 +1,25 @@
+<?php
+// refresh inmediatly
+$metaRefresh = 'Refresh';
+if ($finished) {
+    $metaRefreshUrl = $this->url('batch', array('action' => 'finished', 'batchId' => $this->batchId));
+} else {
+    $metaRefreshUrl = $this->url('batch', array('action' => 'process', 'batchId' => $this->batchId));
+}
+
+$metaRefreshSeconds = $this->refreshSeconds;
+$metaRefreshContent = "$metaRefreshSeconds;URL=$metaRefreshUrl";
+$this->headMeta()->appendHttpEquiv($metaRefresh, $metaRefreshContent);
+?>
+<div id="progress-container">
+<div class="panel panel-default">
+    <div class="panel-body">
+        <div class="progress progress-striped active">
+            <div class="progress-bar" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="<?php echo $percentage; ?>" style="width:<?php echo $percentage . '%'; ?>">
+                <span class="progress-bar-text"><?php echo $percentage . '%'; ?></span>
+            </div>
+        </div>
+    </div>
+<div class="panel-footer"><?php echo $message; ?></div>
+</div>
+</div>

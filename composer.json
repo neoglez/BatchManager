@@ -1,0 +1,24 @@
+{
+    "name": "neoglez/batch-manager",
+    "description": "A module",
+    "type": "library",
+    "keywords": [
+        "zf2"
+    ],
+    "authors": [
+        {
+            "name": "Yansel Gonzalez Tejeda",
+            "email": "neoglez@gmail.com"
+        }
+    ],
+    "autoload": {
+        "psr-4": {
+            "BatchManager\\": "src/BatchManager"
+        }
+    },
+    "require-dev": {
+        "phpunit/phpunit": "~3.7",
+        "squizlabs/php_codesniffer": "1.4.*",
+        "satooshi/php-coveralls": "~0.6"
+    }
+}

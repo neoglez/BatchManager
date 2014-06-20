@@ -1,0 +1,32 @@
+<?php if($this->hasJs): ?>
+<?php
+$this->headScript()->appendScript(
+'var BatchManager = BatchManager || { };' .
+'BatchManager.processUri = "' . $refreshUrl . '";' .
+'BatchManager.finishedUri = "' . $finishedUrl . '";');
+$this->headScript()->appendFile($this->basePath() . '/js/progress.js');
+$this->headScript()->appendFile($this->basePath() . '/js/batch.js');
+?>
+<div id="progress-container">
+</div>
+<?php else: ?>
+<?php
+// refresh inmediatly
+$metaRefresh = 'Refresh';
+$metaRefreshSeconds = $this->refreshSeconds;
+$metaRefreshContent = "$metaRefreshSeconds;URL=$refreshUrl";
+$this->headMeta()->appendHttpEquiv($metaRefresh, $metaRefreshContent);
+?>
+<div id="progress-container">
+<div class="panel panel-default">
+    <div class="panel-body">
+        <div class="progress progress-striped active">
+            <div class="progress-bar" role="progressbar">
+                <span class="progress-bar-text"><?php echo $percentage . '%'; ?></span>
+            </div>
+        </div>
+    </div>
+<div class="panel-footer"><?php echo $message; ?></div>
+</div>
+</div>
+<?php endif; ?>

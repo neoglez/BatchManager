@@ -31,10 +31,9 @@ class InitBatchParamsListener extends AbstractListenerAggregate
      * @return InitBatchParamsListener
      */
     public function __construct(
-        BatchPersisterInterface $mapper, 
+        BatchPersisterInterface $mapper,
         BatchParamsGeneratorInterface $paramsGenerator
-    )
-    {
+    ) {
         $this->batchMapper = $mapper;
         $this->paramsGenerator = $paramsGenerator;
     }
@@ -156,7 +155,7 @@ class InitBatchParamsListener extends AbstractListenerAggregate
      */
     public function initBatchId(BatchInterface $batch)
     {
-        $bid = $this->paramsGenerator->generateBatchId(); 
+        $bid = $this->paramsGenerator->generateBatchId();
         $batch->setBid($bid);
         return $this;
     }

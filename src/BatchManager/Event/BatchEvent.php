@@ -11,13 +11,13 @@ class BatchEvent extends Event
     /**
      * Batch events triggered by eventmanager
      */
-    CONST EVENT_BATCH_CONFIG        = 'batchConfig';
-    CONST EVENT_BATCH_START         = 'batch.start';
-    CONST EVENT_BATCH_WAKEUP        = 'batch.wakeup';
-    CONST EVENT_BATCH_PROCESS       = 'batch.process';
-    CONST EVENT_BATCH_SLEEP         = 'batch.sleep';
-    CONST EVENT_BATCH_FINISHED      = 'batch.finished';
-    CONST EVENT_BATCH_SHUTDOWN      = 'batch.shutdown';
+    const EVENT_BATCH_CONFIG        = 'batchConfig';
+    const EVENT_BATCH_START         = 'batch.start';
+    const EVENT_BATCH_WAKEUP        = 'batch.wakeup';
+    const EVENT_BATCH_PROCESS       = 'batch.process';
+    const EVENT_BATCH_SLEEP         = 'batch.sleep';
+    const EVENT_BATCH_FINISHED      = 'batch.finished';
+    const EVENT_BATCH_SHUTDOWN      = 'batch.shutdown';
     
     /**
      * 
@@ -340,6 +340,4 @@ class BatchEvent extends Event
     {
         return $this->getParam('error', '');
     }
-
-    
 }

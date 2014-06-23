@@ -89,7 +89,7 @@ class RegisterViewStrategyListener extends AbstractListenerAggregate
         /*@var $moduleOptions \BatchManager\Option\ModuleOptions */
         $moduleOptions = $locator->get('batch_manager_module_options');
     
-        if ($cookies instanceof ArrayObject && 
+        if ($cookies instanceof ArrayObject &&
             $cookies->offsetExists($moduleOptions->getCookieKey())
         ) {
             $hasJs = $cookies->offsetGet($moduleOptions->getCookieKey());
@@ -99,12 +99,12 @@ class RegisterViewStrategyListener extends AbstractListenerAggregate
     
         $result->setVariable('hasJs', $hasJs);
         
-        // Not content negociation if not processing    
+        // Not content negociation if not processing
         if (!($action == $moduleOptions->getProcessAction())) {
             return;
         }
     
-        // For process action we mark the view as terminal when hasJs 
+        // For process action we mark the view as terminal when hasJs
         // to avoid rendering the 'layout'
         $result->setTerminal($hasJs);
         $e->setResult($result);

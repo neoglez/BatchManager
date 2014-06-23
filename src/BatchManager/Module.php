@@ -51,11 +51,12 @@ class Module implements
             
             /*@var $sharedEvents \Zend\EventManager\SharedEventManagerInterface */
             $sharedEvents = $eventManager->getSharedManager();
-            $sharedEvents->attach('Zend\Stdlib\DispatchableInterface', 
-                                    MvcEvent::EVENT_DISPATCH, 
-                                    array($registerStrategy, 'mutateViewModel'),
-                                    -95
-                                 );
+            $sharedEvents->attach(
+                'Zend\Stdlib\DispatchableInterface',
+                MvcEvent::EVENT_DISPATCH, 
+                array($registerStrategy, 'mutateViewModel'),
+                -95
+                );
         }
         
         $bem = $e->getApplication()

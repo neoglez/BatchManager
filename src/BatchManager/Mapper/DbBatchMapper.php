@@ -70,5 +70,4 @@ class DbBatchMapper extends AbstractDbMapper implements BatchPersisterInterface
         }
         return false;
     }
-
 }

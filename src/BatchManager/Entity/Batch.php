@@ -93,5 +93,4 @@ class Batch implements BatchInterface
         $this->data = $data;
         return $this;
     }
-    
 }

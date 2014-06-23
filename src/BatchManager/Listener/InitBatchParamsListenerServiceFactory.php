@@ -16,7 +16,7 @@ class InitBatchParamsListenerServiceFactory implements FactoryInterface
         $paramsGenerator = new BatchParamsGenerator($moduleOptions->getSecretSecretKey());
         
         /*@var $batchMapper \BatchManager\Persister\BatchPersisterInterface */
-        $batchMapper = $serviceLocator->get('batch_manager_mapper'); 
+        $batchMapper = $serviceLocator->get('batch_manager_mapper');
         return new InitBatchParamsListener($batchMapper, $paramsGenerator);
     }
 }

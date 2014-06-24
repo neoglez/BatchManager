@@ -33,3 +33,87 @@ class GenerateUserListener extends AbstractListenerAggregate
     // more here
 }
 ```
+
+### Implement your business logic
+
+```php
+public function onBatchProcess(BatchEvent $event)
+    {
+        $filename = 'data/generated-user.csv';
+        $totalAmount = 500000;
+        
+        // we are going to generate 10000 users per batch
+        $batchSize = 10000;
+        
+        $batch = $event->getBatch();
+        
+        // we can save data/state information into this variable
+        // between the batch
+        $data = $batch->getData();
+        
+        if (empty($data) || empty($data['all_users']) || empty($data['processed_users'])) {
+            $data = is_array($data) ?: array();
+            $data['all_users'] = $totalAmount;
+            
+            // open the file and place the pointer at the begining to write the first info;
+            $fhandle = fopen($filename, 'w+');
+            if (!$fhandle) {
+                $event->setError("File can't be created");
+                return;
+            }
+            for ($i = 1; $i <= $batchSize; $i++) {
+                $username = $this->generateUsername($i);
+                $userEmail = $this->generateUsername($i);
+                $userPassword = $this->generateStrongPassword();
+                $userRow = $username . ';' . $userEmail . ';' . $userPassword . PHP_EOL;
+                fwrite($fhandle, $userRow);
+            }
+            // close the file
+            fclose($fhandle);
+            
+            $data['processed_users'] = $batchSize;
+            $percentage = ($data['processed_users']/$data['all_users']) * 100;
+            
+            // we set ourself the percentage but we could have set max, min and current
+            // and call updatePercentage
+            $event->setPercentage($percentage);
+            $event->setCurrentMessage('Processing the first 10000 users out of 500000');
+        } else {
+            $rest = $data['all_users'] - $data['processed_users'];
+            $start = $data['processed_users'] + 1;
+            
+            if ($rest >= $batchSize) {
+                $limit = $data['processed_users'] + $batchSize;
+            } else {
+                $limit = $totalAmount;
+            }
+            // open the file and place the pointer at the END to write another 5000
+            // or what is left.
+            $fhandle = fopen($filename, 'a+');
+            if (!$fhandle) {
+                $event->setError("File not accesible");
+                return;
+            }
+            for ($i = $start; $i <= $limit; $i++) {
+                $username = $this->generateUsername($i);
+                $userEmail = $this->generateUsername($i);
+                $userPassword = $this->generateStrongPassword();
+                $userRow = $username . ';' . $userEmail . ';' . $userPassword . PHP_EOL;
+                fwrite($fhandle, $userRow);
+            }
+            // close the file
+            fclose($fhandle);
+            $data['processed_users'] = $limit;
+
+            $percentage = ($data['processed_users']/$data['all_users']) * 100;
+            $event->setPercentage($percentage);
+            $event->setCurrentMessage(
+                            sprintf('%d users have been processed out of %d total', 
+                            $data['processed_users'], 
+                            $data['all_users']));
+        }
+        // set the data so that the batch can persist it
+        $batch->setData($data);
+        $event->setBatch($batch);
+    }
+```

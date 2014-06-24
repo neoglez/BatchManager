@@ -1,14 +1,16 @@
 # Basic use
 
 At the most basic use you'll be doing two things:
+
 1. Create a listener to listen to one or more events triggered by the BatchManager.
 2. Attach the listener to the SharedEventManager.
 
-We are going to use an Example to explain the steps: Let's generate 500 000 users.
+We are going to use an example to explain the steps: Let's generate 500 000 users.
 
 ## Example Generate 500 000 users and save it to a csv file.
 
 ### Create a listener that listen to the BatchEvent::EVENT_BATCH_PROCESS event
+    
     ```php
     <?php
     namespace Application\Listener;

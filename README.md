@@ -41,8 +41,7 @@ If you do not want to use composer, clone this project (either as a git submodul
     return array(
         'modules' => array(
             // ...
-            'ZfcBase',
-            'ZfcUser',
+            'BatchManager',
         ),
         // ...
     );

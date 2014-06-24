@@ -11,27 +11,25 @@ We are going to use an example to explain the steps: Let's generate 500 000 user
 
 ### Create a listener that listen to the BatchEvent::EVENT_BATCH_PROCESS event
 
-    ```php
-    <?php
-    namespace Application\Listener;
-    
-    use Zend\EventManager\AbstractListenerAggregate;
-    use Zend\EventManager\EventManagerInterface;
-    use BatchManager\Event\BatchEvent;
-    
-    class GenerateUserListener extends AbstractListenerAggregate
+```php
+namespace Application\Listener;
+use Zend\EventManager\AbstractListenerAggregate;
+use Zend\EventManager\EventManagerInterface;
+use BatchManager\Event\BatchEvent;
+
+class GenerateUserListener extends AbstractListenerAggregate
+{
+    public function attach(EventManagerInterface $events)
     {
-        public function attach(EventManagerInterface $events)
-        {
-            /*@var $sharedEvents Zend\EventManage\SharedEventManagerInterface */
-            $sharedEvents = $events->getSharedManager();
-            $sharedEvents->attach(
-                'BatchManager\Service\BatchManager',
-                BatchEvent::EVENT_BATCH_PROCESS,
-                array($this, 'onBatchProcess')
-            );
-        }
-        
-        // more here
+        /*@var $sharedEvents Zend\EventManage\SharedEventManagerInterface */
+        $sharedEvents = $events->getSharedManager();
+        $sharedEvents->attach(
+            'BatchManager\Service\BatchManager',
+            BatchEvent::EVENT_BATCH_PROCESS,
+            array($this, 'onBatchProcess')
+        );
     }
-    ```
+    
+    // more here
+}
+```

@@ -10,7 +10,7 @@ We are going to use an example to explain the steps: Let's generate 500 000 user
 ## Example Generate 500 000 users and save it to a csv file.
 
 ### Create a listener that listen to the BatchEvent::EVENT_BATCH_PROCESS event
-    
+
     ```php
     <?php
     namespace Application\Listener;

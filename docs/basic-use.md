@@ -1,9 +1,10 @@
 # Basic use
 
-At the most basic use you'll be doing two things:
+At the most basic use you'll be doing three things:
 
-1. Create a listener to listen to one or more events triggered by the BatchManager.
-2. Attach the listener to the SharedEventManager.
+1. Create a listener to listen to one or more events triggered by the `BatchManager`.
+2. Attach the listener to the `SharedEventManager`.
+3. Redirect to the `BatchController::startAction`
 
 We are going to use an example to explain the steps: Let's generate 500 000 users.
 

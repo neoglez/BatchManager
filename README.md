@@ -48,3 +48,9 @@ If you do not want to use composer, clone this project (either as a git submodul
     ```
 
 2. To be able to use the assets under /batch-manager/public you can either install the module [AssetManager](https://github.com/RWOverdijk/AssetManager) or copy the files to your public directory.
+
+#### Creating the table
+
+You must create the required table in order to use the default `BatchManager\Mapper\DbBatchMapper`. You may use the schema located in data/batch.sql.
+
+`>mysql database < data/batch.sql`

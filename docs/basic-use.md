@@ -88,7 +88,7 @@ public function onBatchProcess(BatchEvent $event)
             } else {
                 $limit = $totalAmount;
             }
-            // open the file and place the pointer at the END to write another 5000
+            // open the file and place the pointer at the END to write another 10000
             // or what is left.
             $fhandle = fopen($filename, 'a+');
             if (!$fhandle) {

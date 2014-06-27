@@ -1,1 +1,8 @@
-
+<?php if ($isError): ?>
+<?php $class = 'alert alert-danger'?>
+<?php else: ?>
+<?php $class = 'alert alert-success'?>
+<?php endif; ?>
+<div class="<?php echo $class; ?>" role="alert">
+<?php echo $message; ?>
+</div>

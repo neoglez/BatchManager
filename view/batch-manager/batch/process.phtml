@@ -1,14 +1,9 @@
 <?php
 // refresh inmediatly
 $metaRefresh = 'Refresh';
-if ($finished) {
-    $metaRefreshUrl = $this->url('batch', array('action' => 'finished', 'batchId' => $this->batchId));
-} else {
-    $metaRefreshUrl = $this->url('batch', array('action' => 'process', 'batchId' => $this->batchId));
-}
 
 $metaRefreshSeconds = $this->refreshSeconds;
-$metaRefreshContent = "$metaRefreshSeconds;URL=$metaRefreshUrl";
+$metaRefreshContent = "$metaRefreshSeconds;URL=$refreshUrl";
 $this->headMeta()->appendHttpEquiv($metaRefresh, $metaRefreshContent);
 ?>
 <div id="progress-container">

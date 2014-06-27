@@ -42,6 +42,10 @@ class Module implements
         $sdName = 'BatchManager\Listener\ShutdownBatchListener';
         $sdListener = $serviceManager->get($sdName);
         
+        // attach the shutdown listener
+        $moeName = 'BatchManager\Listener\MessageOnErrorListener';
+        $moeListener = $serviceManager->get($moeName);
+        
         // register the content negociation
         /*@var $moduleOptions \BatchManager\Option\ModuleOptions */
         $moduleOptions = $serviceManager->get('batch_manager_module_options');
@@ -66,6 +70,7 @@ class Module implements
         
         $bem->attach($initListener);
         $bem->attach($sdListener);
+        $bem->attach($moeListener);
     }
 
     public function getConfig()
@@ -99,6 +104,7 @@ class Module implements
             ),
             'invokables' => array(
                 'batch_manager_register_strategy' => 'BatchManager\Listener\RegisterViewStrategyListener',
+                'BatchManager\Listener\MessageOnErrorListener' => 'BatchManager\Listener\MessageOnErrorListener',
             ),
         );
     }

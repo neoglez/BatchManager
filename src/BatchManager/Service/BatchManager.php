@@ -235,7 +235,10 @@ class BatchManager implements BatchManagerInterface
         
         // Trigger process event, listeners should do "their really work" here
         $result = $events->trigger(BatchEvent::EVENT_BATCH_PROCESS, $event, $shortCircuit);
-        
+        if ($event->isError()){
+            // trigger finish
+            $this->finishBatch();
+        }
         // if someone returns a response, return it
         $response = $result->last();
         return $response;
@@ -244,7 +247,19 @@ class BatchManager implements BatchManagerInterface
     public function finishBatch()
     {
         $event = $this->getBatchEvent();
+        $event->setTarget($this);
+        $event->setBatch($this->getBatch());
         $events = $this->getEventManager();
+        
+        // Trigger wakeup event. The BatchLoad listener will attemp to load
+        // the batch.
+        $events->trigger(BatchEvent::EVENT_BATCH_WAKEUP, $event);
+        
+        // if batch could not be loaded there is nothing we can do
+        $batch = $event->getBatch();
+        if (!$batch->getBid()) {
+            throw new EmptyBatchException();
+        }
         
         // Define callback used to determine whether or not to short-circuit
         $shortCircuit = function ($r) use ($event) {
@@ -276,6 +291,6 @@ class BatchManager implements BatchManagerInterface
     protected function attachDefaultListeners()
     {
         $events = $this->getEventManager();
-        //$events->attach(ModuleEvent::EVENT_LOAD_MODULES, array($this, 'onLoadModules'));
+        // @todo register the listeners here?
     }
 }

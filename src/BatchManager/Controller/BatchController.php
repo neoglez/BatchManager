@@ -27,8 +27,9 @@ class BatchController extends AbstractActionController
             'action' => $pAction,
             $bidKey => $batch->getBid()
         );
+        
         $queryParams = $this->params()->fromQuery();
-        $queryParams = !empty($queryParams) ? array('query' => $queryParams): null;
+        $queryParams = !empty($queryParams) ? array('query' => $queryParams) : null;
         
         list($fRoute, $fAction, $bidKey) = $moduleOptions->getFinishedRouteConfigArray();
         $fparams = array(
@@ -48,7 +49,7 @@ class BatchController extends AbstractActionController
             
             return new ViewModel($model);
         } else {
-            return $this->redirect()->toRoute($pRoute, $params);
+            return $this->redirect()->toRoute($pRoute, $params, $queryParams);
         }
     }
     

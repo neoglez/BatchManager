@@ -58,6 +58,6 @@ class BatchParamsGenerator implements BatchParamsGeneratorInterface
         $key = $sessionId . $this->secretKey;
         
         $binaryHmac = Hmac::compute($key, 'sha256', $data, Hmac::OUTPUT_BINARY);
-        return base64_encode($data);
+        return base64_encode($binaryHmac);
     }
 }

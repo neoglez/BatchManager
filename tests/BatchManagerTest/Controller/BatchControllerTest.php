@@ -22,6 +22,13 @@ class BatchManagerControllerTest extends PHPUnit_Framework_TestCase
         $this->moduleOptions = new ModuleOptions();
     }
     
+    public function resetControllerPluginManager()
+    {
+        // plugin manager
+        $plugins = $this->getMock('Zend\Mvc\Controller\PluginManager');
+        $this->controller->setPluginManager($plugins);
+    }
+    
     public function prepareControllerForStartAction()
     {
         $batchManager = $this->getMock('BatchManager\Service\BatchManager');
@@ -54,6 +61,7 @@ class BatchManagerControllerTest extends PHPUnit_Framework_TestCase
                        ->will($this->returnValue($this->moduleOptions));
         
         $this->controller->setServiceLocator($serviceLocator);
+        $this->resetControllerPluginManager();
     }
     
     public function testStartActionReturnViewModelWithBatch()
@@ -61,14 +69,35 @@ class BatchManagerControllerTest extends PHPUnit_Framework_TestCase
         $this->moduleOptions->setProcessBatchAfterStart(false);
         $this->prepareControllerForStartAction();
         
+        // params plugin
+        $paramsPlugin = $this->getMock('Zend\Mvc\Controller\Plugin\Params', array('fromQuery'));
+        $paramsPlugin->expects($this->any())
+                     ->method('fromQuery')
+                     ->will($this->returnValue(array('key' => 'value')));
+        
         // url plugin
         $urlPlugin = $this->getMock('Zend\Mvc\Controller\Plugin\Url');
-        $urlPlugin->expects($this->any())
+        $urlPlugin->expects($this->at(0))
                   ->method('fromRoute')
                   ->will($this->returnValue('/some/url'));
         
+        $urlPlugin->expects($this->at(1))
+                  ->method('fromRoute')
+                  ->will($this->returnValue('/another/url'));
+        
         $plugins = $this->controller->getPluginManager();
-        $plugins->expects($this->any())
+        
+        $plugins->expects($this->at(1))
+                ->method('get')
+                ->with('params')
+                ->will($this->returnValue($paramsPlugin));
+        
+        $plugins->expects($this->at(3))
+                ->method('get')
+                ->with('url')
+                ->will($this->returnValue($urlPlugin));
+        
+        $plugins->expects($this->at(5))
                 ->method('get')
                 ->with('url')
                 ->will($this->returnValue($urlPlugin));
@@ -85,7 +114,13 @@ class BatchManagerControllerTest extends PHPUnit_Framework_TestCase
         
         $expectedResponse = new Response();
         $expectedResponse->setStatusCode(Response::STATUS_CODE_302);
-        $expectedResponse->getHeaders()->addHeaderLine('Location', '/some/url');
+        $expectedResponse->getHeaders()->addHeaderLine('Location', '/some/url?key=value');
+        
+        // params plugin
+        $paramsPlugin = $this->getMock('Zend\Mvc\Controller\Plugin\Params', array('fromQuery'));
+        $paramsPlugin->expects($this->any())
+                    ->method('fromQuery')
+                    ->will($this->returnValue(array('key' => 'value')));
         
         // redirect plugin
         $redirectPlugin = $this->getMock('Zend\Mvc\Controller\Plugin\Redirect');
@@ -94,10 +129,16 @@ class BatchManagerControllerTest extends PHPUnit_Framework_TestCase
                        ->will($this->returnValue($expectedResponse));
         
         $plugins = $this->controller->getPluginManager();
-        $plugins->expects($this->any())
+        
+        $plugins->expects($this->at(3))
                 ->method('get')
                 ->with('redirect')
                 ->will($this->returnValue($redirectPlugin));
+        
+        $plugins->expects($this->at(1))
+                ->method('get')
+                ->with('params')
+                ->will($this->returnValue($paramsPlugin));
          
         $result = $this->controller->startAction();
         
@@ -107,7 +148,7 @@ class BatchManagerControllerTest extends PHPUnit_Framework_TestCase
                           "Asserting response code is 302");
         
         $this->assertEquals($result->getHeaders()->get('Location')->getFieldValue(),
-                            '/some/url', 
+                            '/some/url?key=value', 
                             "Asserting location header was set in response");
     }
 }

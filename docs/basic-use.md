@@ -43,8 +43,8 @@ public function onBatchProcess(BatchEvent $event)
         $filename = 'data/generated-user.csv';
         $totalAmount = 500000;
         
-        // we are going to generate 10000 users per batch
-        $batchSize = 10000;
+        // we are going to generate 10007 users per batch
+        $batchSize = 10007;
         
         $batch = $event->getBatch();
         
@@ -64,7 +64,7 @@ public function onBatchProcess(BatchEvent $event)
             }
             for ($i = 1; $i <= $batchSize; $i++) {
                 $username = $this->generateUsername($i);
-                $userEmail = $this->generateUsername($i);
+                $userEmail = $this->generateUserEmail($i);
                 $userPassword = $this->generateStrongPassword();
                 $userRow = $username . ';' . $userEmail . ';' . $userPassword . PHP_EOL;
                 fwrite($fhandle, $userRow);
@@ -78,13 +78,13 @@ public function onBatchProcess(BatchEvent $event)
             // we set ourself the percentage but we could have set max, min and current
             // and call updatePercentage
             $event->setPercentage($percentage);
-            $event->setCurrentMessage('Processing the first 10000 users out of 500000');
+            $event->setCurrentMessage('Processing the first 10007 users out of 500000');
         } else {
             $rest = $data['all_users'] - $data['processed_users'];
             $start = $data['processed_users'] + 1;
             
             if ($rest >= $batchSize) {
-                $limit = $data['processed_users'] + $batchSize;
+                $limit = $start + $batchSize;
             } else {
                 $limit = $totalAmount;
             }
@@ -109,7 +109,7 @@ public function onBatchProcess(BatchEvent $event)
             $percentage = ($data['processed_users']/$data['all_users']) * 100;
             $event->setPercentage($percentage);
             $event->setCurrentMessage(
-                            sprintf('%d users have been processed out of %d total', 
+                            sprintf('%d users have been processed out of %d', 
                             $data['processed_users'], 
                             $data['all_users']));
         }

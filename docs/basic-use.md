@@ -122,6 +122,20 @@ public function onBatchProcess(BatchEvent $event)
         $batch->setData($data);
         $event->setBatch($batch);
     }
+
+public function setMessage(BatchEvent $event)
+    {
+        if (!$event->isError()) {
+            $data = $event->getBatch()->getData();
+            if ($data['all_users'] == $data['processed_users']) {
+                $message = 'All ' . $data['all_users'] . ' were successfully generated';
+            } else {
+                $message = 'Only' . $data['processed_users'] . ' out of ' . $data['all_users'] . ' were successfully generated';
+            }
+            $event->setCurrentMessage($message);
+        }
+        
+    }
 ```
 ### At the convinient time attach the listener you create to the Application event manager.
 
@@ -168,20 +182,6 @@ class Module
                 $eventManager->attach($importListener);
             }
         }
-    }
-    
-    public function setMessage(BatchEvent $event)
-    {
-        if (!$event->isError()) {
-            $data = $event->getBatch()->getData();
-            if ($data['all_users'] == $data['processed_users']) {
-                $message = 'All ' . $data['all_users'] . ' were successfully generated';
-            } else {
-                $message = 'Only' . $data['processed_users'] . ' out of ' . $data['all_users'] . ' were successfully generated';
-            }
-            $event->setCurrentMessage($message);
-        }
-        
     }
 }
 ```

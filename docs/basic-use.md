@@ -1,16 +1,16 @@
 # Basic use
 
-At the most basic use you'll be doing three things:
+At the most basic use you'll be doing four things:
 
-1. Create a listener to listen to one or more events triggered by the `BatchManager`.
-2. Attach the listener to the `SharedEventManager`.
-3. Redirect to the `BatchController::startAction`
+1. Create a listener (or listener aggregate) to listen to one or more events triggered by the `BatchManager`.
+2. At the convenient time attach the listener you create on 1. to the Application event manager.
+3. Set a mark (e.g. URL parameter) and redirect to the `BatchController::startAction`.
 
 We are going to use an example to explain the steps: Let's generate 500 000 users.
 
 ## Example Generate 500 000 users and save it to a csv file.
 
-### Create a listener that listen to the BatchEvent::EVENT_BATCH_PROCESS event
+### Create a listener aggregate that listen to the BatchEvent::EVENT_BATCH_PROCESS and the BatchEvent::EVENT_BATCH_FINISHED events
 
 ```php
 namespace Application\Listener;
@@ -28,6 +28,11 @@ class GenerateUserListener extends AbstractListenerAggregate
             'BatchManager\Service\BatchManager',
             BatchEvent::EVENT_BATCH_PROCESS,
             array($this, 'onBatchProcess')
+        );
+        $sharedEvents->attach(
+            'BatchManager\Service\BatchManager',
+            BatchEvent::EVENT_BATCH_FINISHED,
+            array($this, 'setMessage')
         );
     }
     
@@ -117,4 +122,87 @@ public function onBatchProcess(BatchEvent $event)
         $batch->setData($data);
         $event->setBatch($batch);
     }
+```
+### At the convinient time attach the listener you create to the Application event manager.
+
+The "convenient time" refers here to the event where you have enough information to decide when to attach you listener given that you may have several batch listeners doing different things.
+
+```
+class Module
+{
+    public function onBootstrap(MvcEvent $e)
+    {
+        $eventManager        = $e->getApplication()->getEventManager();
+        $moduleRouteListener = new ModuleRouteListener();
+        $moduleRouteListener->attach($eventManager);
+        
+        // register our listener at dispatching time with high priority
+        // to select the batch listener we want to activate for the
+        // corresponding controller
+        $eventManager->attach(MvcEvent::EVENT_DISPATCH, array($this, 'registerBatchListeners'), 1000);
+    }
+    
+    // more here
+    
+    public function registerBatchListeners(MvcEvent $e)
+    {
+        $controller = $e->getRouteMatch()->getParam('controller');
+        $eventManager = $e->getApplication()->getEventManager();
+        
+        if ($controller == 'BatchManager\Controller\Batch') {
+            $caller = $e->getRequest()->getQuery('caller');
+            if (!$caller) {
+                // can't find the controller who called me :(
+                return;
+            }
+            if ($caller == 'Application\Controller\GenerateController') {
+                // attach listener (wich is a ListenerAggregate) to batch manager
+                $generateListener = 'Application\Listener\GenerateUserListener';
+                $generateListener = $e->getApplication()->getServiceManager()->get($generateListener);
+                $eventManager->attach($generateListener);
+            }
+            if ($caller == 'Application\Controller\ImportController') {
+                // attach listener (wich is a ListenerAggregate) to batch manager
+                $importListener = 'Application\Listener\ImportUserListener';
+                $importListener = $e->getApplication()->getServiceManager()->get($importListener);
+                $eventManager->attach($importListener);
+            }
+        }
+    }
+}
+```
+
+### Set a mark (e.g. URL parameter) and redirect to the `BatchController::startAction`
+
+Now you can just set the `caller` parameter in the url, redirect to the startAction and let the BatchManager do his work.
+
+```
+namespace Application\Controller;
+
+use Zend\Mvc\Controller\AbstractActionController;
+use Zend\View\Model\ViewModel;
+
+class GenerateController extends AbstractActionController
+{
+    public function indexAction()
+    {
+        return new ViewModel();
+    }
+    
+    public function usersAction()
+    {
+        // Here we could do some more processing...
+        // we redirect for processing to the batch controller
+        // but we have to set a mark in the request so the listeners
+        // know when to act.
+        // Be aware you shouldn't disclosure any information related with your code (here __CLASS__)!
+        // This is just to show how a marker can be set!
+        $query = array('caller' => __CLASS__);
+        return $this->redirect()->toRoute('batch', 
+            array('action' => 'start'), 
+            array('query' => $query));
+    }
+    
+    // more here
+}
 ```

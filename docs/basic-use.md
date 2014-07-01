@@ -127,7 +127,7 @@ public function onBatchProcess(BatchEvent $event)
 
 The "convenient time" refers here to the event where you have enough information to decide when to attach you listener given that you may have several batch listeners doing different things.
 
-```
+```php
 class Module
 {
     public function onBootstrap(MvcEvent $e)
@@ -169,6 +169,20 @@ class Module
             }
         }
     }
+    
+    public function setMessage(BatchEvent $event)
+    {
+        if (!$event->isError()) {
+            $data = $event->getBatch()->getData();
+            if ($data['all_users'] == $data['processed_users']) {
+                $message = 'All ' . $data['all_users'] . ' were successfully generated';
+            } else {
+                $message = 'Only' . $data['processed_users'] . ' out of ' . $data['all_users'] . ' were successfully generated';
+            }
+            $event->setCurrentMessage($message);
+        }
+        
+    }
 }
 ```
 
@@ -176,7 +190,7 @@ class Module
 
 Now you can just set the `caller` parameter in the url, redirect to the startAction and let the BatchManager do his work.
 
-```
+```php
 namespace Application\Controller;
 
 use Zend\Mvc\Controller\AbstractActionController;

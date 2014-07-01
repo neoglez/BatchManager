@@ -1,6 +1,6 @@
 # Basic use
 
-At the most basic use you'll be doing four things:
+At the most level you'll be doing three things:
 
 1. Create a listener (or listener aggregate) to listen to one or more events triggered by the `BatchManager`.
 2. At the convenient time attach the listener you create on 1. to the Application event manager.

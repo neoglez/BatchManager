@@ -137,7 +137,7 @@ public function setMessage(BatchEvent $event)
         
     }
 ```
-### At the convinient time attach the listener you create to the Application event manager.
+### At the convenient time attach the listener you create to the Application event manager.
 
 The "convenient time" refers here to the event where you have enough information to decide when to attach you listener given that you may have several batch listeners doing different things.
 

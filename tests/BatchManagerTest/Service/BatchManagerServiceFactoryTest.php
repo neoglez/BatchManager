@@ -1,8 +1,7 @@
 <?php
 namespace BatchManagerTest\Service;
 
-use Zend\ServiceManager\ServiceManager;
-use BatchManager\Service\BatchManagerServiceFactory;
+use BatchManager\Factory\BatchManagerServiceFactory;
 use PHPUnit_Framework_TestCase;
 use BatchManager\Option\BatchManagerOptions;
 
@@ -12,7 +11,7 @@ class BatchManagerServiceFactoryTest extends PHPUnit_Framework_TestCase
     
     public function setUp()
     {
-        $this->serviceLocator = $this->getMock('Zend\ServiceManager\ServiceLocatorInterface');
+        $this->serviceLocator = $this->createMock('Zend\ServiceManager\ServiceLocatorInterface');
     }
     
     public function testCreateFromFactoryNoOptions()
@@ -22,7 +21,7 @@ class BatchManagerServiceFactoryTest extends PHPUnit_Framework_TestCase
                              ->with('batch_manager_options')
                              ->will($this->returnValue(false));
         $factory = new BatchManagerServiceFactory();
-        $result = $factory->createService($this->serviceLocator);
+        $result = $factory->__invoke($this->serviceLocator, 'BatchManager\Service\BatchManager');
         $this->assertInstanceOf('BatchManager\Service\BatchManager', $result);
     }
     
@@ -40,7 +39,7 @@ class BatchManagerServiceFactoryTest extends PHPUnit_Framework_TestCase
                              ->will($this->returnValue($options));
         
         $factory = new BatchManagerServiceFactory();
-        $result = $factory->createService($this->serviceLocator);
+        $result = $factory->__invoke($this->serviceLocator, 'BatchManager\Service\BatchManager');
         $this->assertInstanceOf('BatchManager\Service\BatchManager', $result);
     }
 }

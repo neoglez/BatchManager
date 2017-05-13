@@ -21,8 +21,8 @@ return array(
         ),
     ),
     'controllers' => array(
-        'invokables' => array(
-            'BatchManager\Controller\Batch' => 'BatchManager\Controller\BatchController',
+        'factories' => array(
+            'BatchManager\Controller\Batch' => 'BatchManager\Factory\BatchControllerServiceFactory',
         ),
     ),
     'view_manager' => array(

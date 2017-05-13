@@ -6,6 +6,9 @@ use BatchManager\Entity\Batch;
 
 class BatchTest extends PHPUnit_Framework_TestCase
 {
+    /**
+     * @var Batch
+     */
     protected $batchEntity;
     
     public function setUp()

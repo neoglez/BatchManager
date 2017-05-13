@@ -41,6 +41,8 @@ class BatchManager implements BatchManagerInterface
      * @var BatchInterface
      */
     protected $batch;
+
+
     
     /**
      * 
@@ -113,12 +115,12 @@ class BatchManager implements BatchManagerInterface
         }
         return $this->events;
     }
-    
+
     /**
      * Set the Batch
-     * 
-     * @param BatchInterface the batch
-     * @return BatchManager
+     *
+     * @param BatchInterface $batch
+     * @return $this
      */
     public function setBatch(BatchInterface $batch)
     {
@@ -127,7 +129,7 @@ class BatchManager implements BatchManagerInterface
     }
     
     /**
-     * Retreive the Batch
+     * Retrieve the Batch
      * Lazy-loads a Batch instance if there isn't one jet.
      * 
      * @return BatchInterface;
@@ -190,9 +192,10 @@ class BatchManager implements BatchManagerInterface
         $event->setTarget($this);
         $event->setBatch($this->getBatch());
         $events = $this->getEventManager();
-        // Trigger wakeup event. The BatchLoad listener will attemp to load
+        $event->setName(BatchEvent::EVENT_BATCH_WAKEUP);
+        // Trigger wakeup event. The BatchLoad listener will attempt to load
         // the batch.
-        $events->trigger(BatchEvent::EVENT_BATCH_WAKEUP, $event);
+        $events->triggerEvent($event);
         
         // if batch could not be loaded there is nothing we can do
         $batch = $event->getBatch(); 
@@ -234,7 +237,8 @@ class BatchManager implements BatchManagerInterface
         
         
         // Trigger process event, listeners should do "their really work" here
-        $result = $events->trigger(BatchEvent::EVENT_BATCH_PROCESS, $event, $shortCircuit);
+        $event->setName(BatchEvent::EVENT_BATCH_PROCESS);
+        $result = $events->triggerEventUntil($shortCircuit, $shortCircuit);
         if ($event->isError()){
             // trigger finish
             $this->finishBatch();
@@ -249,11 +253,12 @@ class BatchManager implements BatchManagerInterface
         $event = $this->getBatchEvent();
         $event->setTarget($this);
         $event->setBatch($this->getBatch());
+        $event->setName(BatchEvent::EVENT_BATCH_WAKEUP);
         $events = $this->getEventManager();
         
-        // Trigger wakeup event. The BatchLoad listener will attemp to load
+        // Trigger wakeup event. The BatchLoad listener will attempt to load
         // the batch.
-        $events->trigger(BatchEvent::EVENT_BATCH_WAKEUP, $event);
+        $events->triggerEvent($event);
         
         // if batch could not be loaded there is nothing we can do
         $batch = $event->getBatch();
@@ -272,15 +277,17 @@ class BatchManager implements BatchManagerInterface
             return false;
         };
         
-        // Trigger finished event. 
-        $result = $events->trigger(BatchEvent::EVENT_BATCH_FINISHED, $event, $shortCircuit);
+        // Trigger finished event.
+        $event->setName(BatchEvent::EVENT_BATCH_FINISHED);
+        $result = $events->triggerEventUntil($shortCircuit, $event);
     }
     
     public function batchShutdown()
     {
         $event = $this->getBatchEvent();
+        $event->setName(BatchEvent::EVENT_BATCH_SHUTDOWN);
         // Try to keep this logic layer thin: php is shuting down...
-        $this->getEventManager()->trigger(BatchEvent::EVENT_BATCH_SHUTDOWN, $event);
+        $this->getEventManager()->triggerEvent($event);
     }
     
     /**

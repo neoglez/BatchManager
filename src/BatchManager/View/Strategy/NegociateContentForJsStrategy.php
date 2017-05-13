@@ -3,20 +3,20 @@ namespace BatchManager\View\Strategy;
 
 use Zend\EventManager\AbstractListenerAggregate;
 use Zend\EventManager\EventManagerInterface;
-use BatchManager\Event\BatchEvent;
-use BatchManager\Entity\BatchInterface;
-use Zend\Mvc\MvcEvent;
 use Zend\View\ViewEvent;
 use Zend\View\Renderer\JsonRenderer;
 use Zend\View\Renderer\PhpRenderer;
-use Zend\Json\Json;
-use Zend\Console\RouteMatcher\RouteMatcherInterface;
-use Zend\Mvc\Router\RouteMatch;
 
 class NegociateContentForJsStrategy extends AbstractListenerAggregate
-{    
+{
+    /**
+     * @var JsonRenderer
+     */
     protected $jsonRenderer;
-    
+
+    /**
+     * @var PhpRenderer
+     */
     protected $phpRenderer;
     
     public function __construct(
@@ -26,14 +26,13 @@ class NegociateContentForJsStrategy extends AbstractListenerAggregate
         $this->phpRenderer  = $phpRenderer;
         $this->jsonRenderer = $jsonRenderer;
     }
-    
+
     /**
-     * 
-     * (non-PHPdoc)
-     * @see \Zend\EventManager\ListenerAggregateInterface::attach()
-     * @see \Zend\Mvc\View\Http\InjectViewModelListener::attach()
+     *
+     * @param EventManagerInterface $events
+     * @param int $priority
      */
-    public function attach(EventManagerInterface $events)
+    public function attach(EventManagerInterface $events, $priority = 1)
     {
         $this->listeners[] = $events->attach(ViewEvent::EVENT_RENDERER, array($this, 'selectRenderer'));
         $this->listeners[] = $events->attach(ViewEvent::EVENT_RESPONSE, array($this, 'injectResponse'));

@@ -7,6 +7,9 @@ use BatchManager\Entity\Batch;
 
 class BatchEventTest extends PHPUnit_Framework_TestCase
 {
+    /**
+     * @var BatchEvent
+     */
     protected $event;
     
     /**
@@ -47,7 +50,7 @@ class BatchEventTest extends PHPUnit_Framework_TestCase
     public function testEventIsStartedWhenBatchHasTimestamp()
     {
         $time = time();
-        $batch = $this->getMock('BatchManager\Entity\BatchInterface');
+        $batch = $this->createMock('BatchManager\Entity\BatchInterface');
         $batch->expects($this->once())
               ->method('getTimestamp')
               ->will($this->returnValue($time));
@@ -90,7 +93,7 @@ class BatchEventTest extends PHPUnit_Framework_TestCase
         $max = 250;
         $min = 300;
         $message = "Maximum can't be smaller than minimum";
-        $this->setExpectedException('InvalidArgumentException', $message);
+        $this->expectException($message);
         
         $this->event->setMin($min);
         $this->event->setMax($max);

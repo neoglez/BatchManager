@@ -93,7 +93,8 @@ class BatchEventTest extends PHPUnit_Framework_TestCase
         $max = 250;
         $min = 300;
         $message = "Maximum can't be smaller than minimum";
-        $this->expectException($message);
+        $this->expectException(\Exception::class);
+        $this->expectExceptionMessage($message);
         
         $this->event->setMin($min);
         $this->event->setMax($max);

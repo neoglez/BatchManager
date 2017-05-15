@@ -8,6 +8,7 @@ use BatchManager\Controller\BatchController;
 use BatchManager\Option\ModuleOptions;
 use Zend\Http\Response;
 use Zend\Mvc\Controller\AbstractActionController;
+use Zend\Mvc\Controller\PluginManager;
 
 class BatchManagerControllerTest extends PHPUnit_Framework_TestCase
 {
@@ -36,78 +37,25 @@ class BatchManagerControllerTest extends PHPUnit_Framework_TestCase
             ->method('getBatch')
             ->will($this->returnValue($batch));
 
-        $batchManagerService = 'BatchManager\Service\BatchManager';
-
-        $optionsService = ModuleOptions::class;
-
-        // mock, set expectations and set the controller service locator
-        $serviceLocator = $this->createMock(
-            'Zend\ServiceManager\ServiceLocatorInterface');
-        $serviceLocator->expects($this->at(0))
-            ->method('get')
-            ->with($batchManagerService)
-            ->will($this->returnValue($batchManager));
-
-        $serviceLocator->expects($this->at(1))
-            ->method('get')
-            ->with($optionsService)
-            ->will($this->returnValue($this->moduleOptions));
-
 
         $this->controller = new BatchController($batchManager, $this->moduleOptions);
-        $this->resetControllerPluginManager();
     }
 
     public function resetControllerPluginManager()
     {
-        // plugin manager
-        $plugins = $this->getMockBuilder('Zend\Mvc\Controller\PluginManager')
-            ->disableOriginalConstructor()
-            ->setMethods(['get', 'setController'])
-            ->getMock();
-        $this->controller->setPluginManager($plugins);
-    }
 
-    public function prepareControllerForStartAction()
-    {
-        $batchManager = $this->createMock('BatchManager\Service\BatchManager');
-        $batch = $this->createMock('BatchManager\Entity\BatchInterface');
-
-        // configure expectations
-        $batchManager->expects($this->atLeastOnce())
-            ->method('startBatch')
-            ->will($this->returnSelf());
-
-        $batchManager->expects($this->atLeastOnce())
-            ->method('getBatch')
-            ->will($this->returnValue($batch));
-
-        $batchManagerService = BatchManager::class;
-
-        $optionsService = ModuleOptions::class;
-
-        // mock, set expectations and set the controller service locator
-        $serviceLocator = $this->createMock(
-            'Zend\ServiceManager\ServiceLocatorInterface');
-
-        $serviceLocator->expects($this->at(0))
-            ->method('get')
-            ->with($batchManagerService)
-            ->will($this->returnValue($batchManager));
-
-        $serviceLocator->expects($this->at(1))
-            ->method('get')
-            ->with($optionsService)
-            ->will($this->returnValue($this->moduleOptions));
-
-        $this->resetControllerPluginManager();
     }
 
 
     public function testStartActionReturnViewModelWithBatch()
     {
         $this->moduleOptions->setProcessBatchAfterStart(false);
-        $this->prepareControllerForStartAction();
+        $this->resetControllerPluginManager();
+
+        // plugin manager
+        $plugins = $this->getMockBuilder(PluginManager::class)
+            ->disableOriginalConstructor()
+            ->getMock();
 
         // params plugin
         $paramsPlugin = $this->getMockBuilder('Zend\Mvc\Controller\Plugin\Params')
@@ -118,35 +66,23 @@ class BatchManagerControllerTest extends PHPUnit_Framework_TestCase
             ->method('fromQuery')
             ->will($this->returnValue(['key' => 'value']));
 
+
         // url plugin
         $urlPlugin = $this->getMockBuilder('Zend\Mvc\Controller\Plugin\Url')
             ->setMethods(['fromRoute'])
             ->getMock();
 
-        $urlPlugin->expects($this->at(0))
+        $urlPlugin->expects($this->any())
             ->method('fromRoute')
             ->will($this->returnValue('/some/url'));
 
-        $urlPlugin->expects($this->at(1))
-            ->method('fromRoute')
-            ->will($this->returnValue('/another/url'));
 
-        $plugins = $this->controller->getPluginManager();
-
-        $plugins->expects($this->at(1))
+        $plugins->expects($this->exactly(3))
             ->method('get')
-            ->with('params')
-            ->will($this->returnValue($paramsPlugin));
-
-        $plugins->expects($this->at(3))
-            ->method('get')
-            ->with('url')
-            ->will($this->returnValue($urlPlugin));
-
-        $plugins->expects($this->at(5))
-            ->method('get')
-            ->with('url')
-            ->will($this->returnValue($urlPlugin));
+            ->withConsecutive([$this->equalTo('params'), $this->equalTo(null)],
+                [$this->equalTo('url'), $this->equalTo(null)],
+                [$this->equalTo('url'), $this->equalTo(null)])
+            ->willReturnOnConsecutiveCalls($this->returnValue($paramsPlugin), $this->returnValue($urlPlugin), $this->returnValue($urlPlugin));
 
         $this->controller->setPluginManager($plugins);
 
@@ -159,14 +95,22 @@ class BatchManagerControllerTest extends PHPUnit_Framework_TestCase
     public function testStartActionCanRedirectToProcessAction()
     {
         $this->moduleOptions->setProcessBatchAfterStart(true);
-        $this->prepareControllerForStartAction();
+        $this->resetControllerPluginManager();
 
         $expectedResponse = new Response();
         $expectedResponse->setStatusCode(Response::STATUS_CODE_302);
         $expectedResponse->getHeaders()->addHeaderLine('Location', '/some/url?key=value');
 
+        // plugin manager
+        $plugins = $this->getMockBuilder(PluginManager::class)
+            ->disableOriginalConstructor()
+            ->getMock();
+
         // params plugin
-        $paramsPlugin = $this->createMock('Zend\Mvc\Controller\Plugin\Params', ['fromQuery']);
+        $paramsPlugin = $this->getMockBuilder('Zend\Mvc\Controller\Plugin\Params')
+            ->setMethods(['fromQuery'])
+            ->getMock();
+
         $paramsPlugin->expects($this->any())
             ->method('fromQuery')
             ->will($this->returnValue(['key' => 'value']));
@@ -177,17 +121,18 @@ class BatchManagerControllerTest extends PHPUnit_Framework_TestCase
             ->method('toRoute')
             ->will($this->returnValue($expectedResponse));
 
-        $plugins = $this->controller->getPluginManager();
 
-        $plugins->expects($this->at(3))
+        $plugins->expects($this->exactly(2))
             ->method('get')
-            ->with('redirect')
-            ->will($this->returnValue($redirectPlugin));
+            ->withConsecutive(
+                [$this->equalTo('params'), $this->equalTo(null)],
+                [$this->equalTo('redirect'), $this->equalTo(null)])
+            ->willReturnOnConsecutiveCalls(
+                $this->returnValue($paramsPlugin),
+                $this->returnValue($redirectPlugin));
 
-        $plugins->expects($this->at(1))
-            ->method('get')
-            ->with('params')
-            ->will($this->returnValue($paramsPlugin));
+        $this->controller->setPluginManager($plugins);
+
 
         $result = $this->controller->startAction();
 

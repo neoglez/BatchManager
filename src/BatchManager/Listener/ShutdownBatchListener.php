@@ -14,11 +14,10 @@ class ShutdownBatchListener extends AbstractListenerAggregate
      * @var $batchMapper BatchPersisterInterface;
      */
     protected $batchMapper;
-    
+
     /**
-     * 
+     * ShutdownBatchListener constructor.
      * @param BatchPersisterInterface $mapper
-     * @return InitBatchParamsListener
      */
     public function __construct(BatchPersisterInterface $mapper)
     {

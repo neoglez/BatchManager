@@ -3,11 +3,11 @@
 namespace BatchManager;
 
 use BatchManager\Listener\InitBatchParamsListener;
-use BatchManager\Listener\InitBatchParamsListenerServiceFactory;
+use BatchManager\Factory\InitBatchParamsListenerServiceFactory;
 use BatchManager\Listener\MessageOnErrorListener;
 use BatchManager\Listener\RegisterViewStrategyListener;
 use BatchManager\Listener\ShutdownBatchListener;
-use BatchManager\Listener\ShutdownBatchListenerServiceFactory;
+use BatchManager\Factory\ShutdownBatchListenerServiceFactory;
 use BatchManager\Factory\DbBatchMapperServiceFactory;
 use BatchManager\Option\BatchManagerOptions;
 use BatchManager\Factory\BatchManagerOptionsServiceFactory;

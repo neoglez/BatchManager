@@ -11,22 +11,20 @@ use BatchManager\Generator\BatchParamsGeneratorInterface;
 
 class InitBatchParamsListener extends AbstractListenerAggregate
 {
-    
+
     /**
-     * 
+     *
      * @var $batchMapper BatchPersisterInterface;
      */
     protected $batchMapper;
-    
+
     /**
-     * Generator that assign a value to the batch bid and the token
-     * 
-     * @var \BatchManager\Generator\AbstractBatchParamsGenerator
+     * @var BatchParamsGeneratorInterface
      */
     protected $paramsGenerator;
-    
+
     /**
-     * 
+     *
      * @param BatchPersisterInterface $mapper
      * @return InitBatchParamsListener
      */
@@ -37,47 +35,43 @@ class InitBatchParamsListener extends AbstractListenerAggregate
         $this->batchMapper = $mapper;
         $this->paramsGenerator = $paramsGenerator;
     }
-    
+
     /**
-     * 
      * @param BatchParamsGeneratorInterface $paramsGenerator
-     * @return \BatchManager\Listener\InitBatchParamsListener
+     * @return $this
      */
     public function setParamsGenerator(BatchParamsGeneratorInterface $paramsGenerator)
     {
         $this->paramsGenerator = $paramsGenerator;
         return $this;
     }
-    
+
     /**
-     * 
-     * @return \BatchManager\Generator\AbstractBatchParamsGenerator
+     * @return BatchParamsGeneratorInterface
      */
     public function getParamsGenerator()
     {
         return $this->paramsGenerator;
     }
-    
+
     /**
-     * 
-     * @param  $bm BatchPersisterInterface
-     * @return \BatchManager\Listener\InitBatchParamsListener
+     * @param $bm
+     * @return $this
      */
     public function setBatchMapper($bm)
     {
         $this->batchMapper = $bm;
         return $this;
     }
-    
+
     /**
-     * 
-     * @return BatchPersisterInterface the $batchMapper
+     * @return BatchPersisterInterface
      */
     public function getBatchMapper()
     {
         return $this->batchMapper;
     }
-    
+
     /**
      * Attach one or more listeners
      *
@@ -88,18 +82,18 @@ class InitBatchParamsListener extends AbstractListenerAggregate
      *
      * @return void
      */
-    public function attach(EventManagerInterface $events)
+    public function attach(EventManagerInterface $events, $priority = 1)
     {
         $this->listeners[] = $events->attach(BatchEvent::EVENT_BATCH_START, array($this, 'onBatchStart'), -1000);
         $this->listeners[] = $events->attach(BatchEvent::EVENT_BATCH_WAKEUP, array($this, 'onBatchWakeUp'), -1000);
     }
-    
+
     public function onBatchStart(BatchEvent $event)
     {
         // we are going to init here the id
         // if there is one already we do nothing
         $batch = $event->getBatch();
-        
+
         // first the ID, otherwise we won't be able to start
         if (!$batch->getBid()) {
             $this->initBatchId($batch);
@@ -107,7 +101,7 @@ class InitBatchParamsListener extends AbstractListenerAggregate
                 throw new \Exception("Batch ID could not be generated");
             }
         }
-        
+
         // second the token
         if (!$batch->getToken()) {
             $this->initBatchToken($batch);
@@ -115,16 +109,16 @@ class InitBatchParamsListener extends AbstractListenerAggregate
                 throw new \Exception("Batch token could not be generated");
             }
         }
-        
+
         $batch->setTimestamp(time());
-        
+
         $this->getBatchMapper()->persistBatch($batch);
-        
+
         // At this point we mark the flag in event to let know others
         // that batch is loaded
         $event->isBatchLoaded(true);
     }
-    
+
     public function onBatchWakeUp(BatchEvent $event)
     {
         $batch = $event->getBatch();
@@ -144,12 +138,12 @@ class InitBatchParamsListener extends AbstractListenerAggregate
             // mark as loaded
             $event->isBatchLoaded(true);
         }
-        
+
     }
-    
+
     /**
      * Assign ID to the batch
-     * 
+     *
      * @param BatchInterface $batch
      * @return \BatchManager\Listener\InitBatchParamsListener
      */
@@ -159,10 +153,10 @@ class InitBatchParamsListener extends AbstractListenerAggregate
         $batch->setBid($bid);
         return $this;
     }
-    
+
     /**
      * Assign a HMAC token to the the batch
-     * 
+     *
      * @param BatchInterface $batch
      * @return \BatchManager\Listener\InitBatchParamsListener
      */

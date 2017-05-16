@@ -8,9 +8,9 @@ use BatchManager\Persister\BatchPersisterInterface;
 
 class ShutdownBatchListener extends AbstractListenerAggregate
 {
-    
+
     /**
-     * 
+     *
      * @var $batchMapper BatchPersisterInterface;
      */
     protected $batchMapper;
@@ -23,27 +23,26 @@ class ShutdownBatchListener extends AbstractListenerAggregate
     {
         $this->batchMapper = $mapper;
     }
-    
+
     /**
-     * 
-     * @param  $bm BatchPersisterInterface
-     * @return \BatchManager\Listener\InitBatchParamsListener
+     * @param $bm
+     * @return $this
      */
     public function setBatchMapper($bm)
     {
         $this->batchMapper = $bm;
         return $this;
     }
-    
+
     /**
-     * 
+     *
      * @return BatchPersisterInterface the $batchMapper
      */
     public function getBatchMapper()
     {
         return $this->batchMapper;
     }
-    
+
     /**
      * Attach one or more listeners
      *
@@ -54,11 +53,11 @@ class ShutdownBatchListener extends AbstractListenerAggregate
      *
      * @return void
      */
-    public function attach(EventManagerInterface $events)
+    public function attach(EventManagerInterface $events, $priority = 1)
     {
         $this->listeners[] = $events->attach(BatchEvent::EVENT_BATCH_SHUTDOWN, array($this, 'onBatchShutdown'), -1000);
     }
-    
+
     public function onBatchShutdown(BatchEvent $event)
     {
         $batch = $event->getBatch();

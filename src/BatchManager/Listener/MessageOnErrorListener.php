@@ -11,7 +11,7 @@ use BatchManager\Generator\BatchParamsGeneratorInterface;
 
 class MessageOnErrorListener extends AbstractListenerAggregate
 {
-    
+
     /**
      * Attach one or more listeners
      *
@@ -22,17 +22,17 @@ class MessageOnErrorListener extends AbstractListenerAggregate
      *
      * @return void
      */
-    public function attach(EventManagerInterface $events)
+    public function attach(EventManagerInterface $events, $priority = 1)
     {
         $this->listeners[] = $events->attach(BatchEvent::EVENT_BATCH_FINISHED, array($this, 'messageOnError'), 1);
     }
-    
+
     public function messageOnError(BatchEvent $event)
     {
         if(!$event->isError()) {
             return;
         }
-        
+
         $event->setCurrentMessage("An error was detected. " . $event->getError());
         $event->setPercentage(100);
     }

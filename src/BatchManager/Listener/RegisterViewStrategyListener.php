@@ -5,6 +5,7 @@ namespace BatchManager\Listener;
 use BatchManager\Option\ModuleOptions;
 use Zend\EventManager\AbstractListenerAggregate;
 use Zend\EventManager\EventManagerInterface;
+use Zend\EventManager\ListenerAggregateInterface;
 use Zend\Http\Request;
 use Zend\Mvc\Application;
 use Zend\Mvc\MvcEvent;
@@ -60,10 +61,11 @@ class RegisterViewStrategyListener extends AbstractListenerAggregate
 
         // Set "our" strategy
         $view = $locator->get('Zend\View\View');
+        /** @var ListenerAggregateInterface $strategy */
         $strategy = $locator->get(RegisterViewStrategyListener::class);
 
         // Attach strategy, which is a listener aggregate, at high priority
-        $view->getEventManager()->attach($strategy, 300);
+        $strategy->attach($view->getEventManager(),300);
     }
 
     public function mutateViewModel(MvcEvent $e)

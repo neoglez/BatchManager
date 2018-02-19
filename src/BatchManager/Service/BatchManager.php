@@ -177,11 +177,12 @@ class BatchManager implements BatchManagerInterface
         $event = $this->getBatchEvent();
         $event->setTarget($this);
         $event->setBatch($this->getBatch());
+        $event->setName(BatchEvent::EVENT_BATCH_START);
         $events = $this->getEventManager();
         // Trigger start event. Registered listener will try to
         // initialize the required parameters(ID and TOKEN) on the batch 
         // to make it available to other requests.
-        $events->trigger(BatchEvent::EVENT_BATCH_START, $event);
+        $events->triggerEvent($event);
         return $this;
     }
     
@@ -191,8 +192,8 @@ class BatchManager implements BatchManagerInterface
         $event = $this->getBatchEvent();
         $event->setTarget($this);
         $event->setBatch($this->getBatch());
-        $events = $this->getEventManager();
         $event->setName(BatchEvent::EVENT_BATCH_WAKEUP);
+        $events = $this->getEventManager();
         // Trigger wakeup event. The BatchLoad listener will attempt to load
         // the batch.
         $events->triggerEvent($event);

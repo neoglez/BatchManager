@@ -1,9 +1,10 @@
 <?php
-namespace BatchManager\Service;
+namespace BatchManager\Factory;
 
 
 use BatchManager\Controller\BatchController;
 use BatchManager\Option\ModuleOptions;
+use BatchManager\Service\BatchManager;
 use Interop\Container\ContainerInterface;
 use Zend\ServiceManager\Factory\FactoryInterface;
 

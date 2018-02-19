@@ -239,7 +239,7 @@ class BatchManager implements BatchManagerInterface
         
         // Trigger process event, listeners should do "their really work" here
         $event->setName(BatchEvent::EVENT_BATCH_PROCESS);
-        $result = $events->triggerEventUntil($shortCircuit, $shortCircuit);
+        $result = $events->triggerEventUntil($shortCircuit, $event);
         if ($event->isError()){
             // trigger finish
             $this->finishBatch();

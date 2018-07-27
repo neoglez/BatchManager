@@ -13,7 +13,6 @@ $this->headScript()->appendFile($this->basePath() . '/js/batch.js');
 <?php
 // refresh inmediatly
 $metaRefresh = 'Refresh';
-$metaRefreshSeconds = $this->refreshSeconds;
 $metaRefreshContent = "$metaRefreshSeconds;URL=$refreshUrl";
 $this->headMeta()->appendHttpEquiv($metaRefresh, $metaRefreshContent);
 ?>
